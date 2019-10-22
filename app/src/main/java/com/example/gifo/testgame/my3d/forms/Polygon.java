@@ -10,14 +10,29 @@ import java.util.ArrayList;
  * Created by gifo on 15.10.2019.
  */
 
-public class Polygon extends Object3D {
+public class Polygon extends Object3D implements Comparable<Polygon> {
+
+    @Override
+    public int compareTo(Polygon obj) {
+
+        // Ранжирование полигонов при отрисовке
+        int result = -1 * ((Float) this.position.z).compareTo(obj.getPosition().z);
+        //if (result == 0) result = ((Float) this.position.y).compareTo(obj.getPosition().y);
+        //if (result == 0) result = ((Float) this.position.x).compareTo(obj.getPosition().x);
+        return result;
+    }
 
     private float scale = 1f;
     private Point3D position;
     private ArrayList<Polygon> poly = new ArrayList<Polygon>();
     private ArrayList<Point3D> plots = new ArrayList<Point3D>();
     private float rotationX = 0f, rotationY = 0f, rotationZ = 0f;
-    Color color = new Color(255, 128, 128, 128);
+    private Color color = new Color(255, 128, 128, 128);
+
+    private boolean isOutlined = false, isOutlineSpecial = false;
+    private float outlineWeight = 1F;
+    private Color outlineColor = new Color(255, 0, 0, 0);
+
 
     public Polygon(float x1, float y1, float z1,
                    float x2, float y2, float z2,
@@ -61,6 +76,24 @@ public class Polygon extends Object3D {
     }
 
     @Override
+    public void moveX(float dx) {
+        for(int i = 0; i < plots.size(); i++) plots.get(i).x += dx;
+        position.x += dx;
+    }
+
+    @Override
+    public void moveY(float dy) {
+        for(int i = 0; i < plots.size(); i++) plots.get(i).y += dy;
+        position.y += dy;
+    }
+
+    @Override
+    public void moveZ(float dz) {
+        for(int i = 0; i < plots.size(); i++) plots.get(i).z += dz;
+        position.z += dz;
+    }
+
+    @Override
     public void setRotationX(float ox) {
         super.setRotationX(ox);
         rotationX = ox;
@@ -99,6 +132,7 @@ public class Polygon extends Object3D {
         calcPosition();
     }
 
+    @Override
     public void restartRotationAngle() {
         rotationX = 0;
         rotationY = 0;
@@ -159,5 +193,47 @@ public class Polygon extends Object3D {
     @Override
     public Color getColor() {
         return color;
+    }
+
+    @Override
+    public void outline(boolean isOutlined) {
+        this.isOutlined = isOutlined;
+    }
+
+    @Override
+    public boolean isOutline() {
+        return isOutlined;
+    }
+
+    @Override
+    public void outlineWeight(float px) {
+        outlineWeight = px;
+    }
+
+    @Override
+    public float getOutlineWeight() {
+        return outlineWeight;
+    }
+
+    @Override
+    public void outlineColor(int alpha, int red, int green, int blue) {
+        outlineColor.alpha = alpha;
+        outlineColor.red = red;
+        outlineColor.green = green;
+        outlineColor.blue = blue;
+    }
+
+    @Override
+    public Color getOutlineColor() {
+        return outlineColor;
+    }
+
+    public void outlineSpecial(boolean isOutlineSpecial) {
+        this.isOutlineSpecial = isOutlineSpecial;
+        this.isOutlined = isOutlineSpecial;
+    }
+
+    public boolean isOutlineSpecial() {
+        return isOutlineSpecial;
     }
 }

@@ -25,11 +25,23 @@ public abstract class Object3D {
     public abstract void setPositionY(float y);
     public abstract void setPositionZ(float z);
 
+    public void move(float dx, float dy, float dz) {
+        moveX(dx);
+        moveY(dy);
+        moveZ(dz);
+    }
+
+    public abstract void moveX(float dx);
+    public abstract void moveY(float dy);
+    public abstract void moveZ(float dz);
+
     public abstract float getRotationX();
     public abstract float getRotationY();
     public abstract float getRotationZ();
 
     public abstract float getScale();
+
+    public abstract void restartRotationAngle();
 
     public void setRotation(float ox, float oy, float oz) {
         setRotationX(ox);
@@ -58,7 +70,7 @@ public abstract class Object3D {
             if (currentAngle < 0) currentAngle += 360;
             double toAngle = Math.toRadians(currentAngle + ox - pl.getRotationX());
             double rotationRadius = Math.sqrt(Math.pow((pl.mesh().get(i).y - position.y), 2d) +
-                                              Math.pow((pl.mesh().get(i).z - position.z), 2d));
+                    Math.pow((pl.mesh().get(i).z - position.z), 2d));
             pl.mesh().get(i).z = (float) (position.z + rotationRadius * Math.sin(toAngle));
             pl.mesh().get(i).y = (float) (position.y - rotationRadius * Math.cos(toAngle));
         }
@@ -73,7 +85,7 @@ public abstract class Object3D {
             if (currentAngle < 0) currentAngle += 360;
             double toAngle = Math.toRadians(currentAngle + oy - pl.getRotationY());
             double rotationRadius = Math.sqrt(Math.pow((pl.mesh().get(i).z - position.z), 2d) +
-                                              Math.pow((pl.mesh().get(i).x - position.x), 2d));
+                    Math.pow((pl.mesh().get(i).x - position.x), 2d));
             pl.mesh().get(i).x = (float) (position.x + rotationRadius * Math.sin(toAngle));
             pl.mesh().get(i).z = (float) (position.z - rotationRadius * Math.cos(toAngle));
         }
@@ -88,7 +100,7 @@ public abstract class Object3D {
             if (currentAngle < 0) currentAngle += 360;
             double toAngle = Math.toRadians(currentAngle + oz - pl.getRotationZ());
             double rotationRadius = Math.sqrt(Math.pow((pl.mesh().get(i).y - position.y), 2d) +
-                                              Math.pow((pl.mesh().get(i).x - position.x), 2d));
+                    Math.pow((pl.mesh().get(i).x - position.x), 2d));
             pl.mesh().get(i).x = (float) (position.x + rotationRadius * Math.sin(toAngle));
             pl.mesh().get(i).y = (float) (position.y - rotationRadius * Math.cos(toAngle));
         }
@@ -110,4 +122,11 @@ public abstract class Object3D {
 
     public abstract void color(int alpha, int red, int green, int blue);
     public abstract Color getColor();
+
+    public abstract void outline(boolean isOutlined);
+    public abstract boolean isOutline();
+    public abstract void outlineWeight(float px);
+    public abstract void outlineColor(int alpha, int red, int green, int blue);
+    public abstract float getOutlineWeight();
+    public abstract Color getOutlineColor();
 }

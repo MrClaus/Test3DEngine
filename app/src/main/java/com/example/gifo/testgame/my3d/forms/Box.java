@@ -16,8 +16,12 @@ public class Box extends Object3D {
     private Point3D position;
     private ArrayList<Polygon> poly = new ArrayList<Polygon>();
     private float rotationX = 0f, rotationY = 0f, rotationZ = 0f;
-    Plane planeRight, planeLeft, planeBottom, planeTop, planeFront, planeBehind;
-    Color color = new Color(255, 128, 128, 128);
+    private Plane planeRight, planeLeft, planeBottom, planeTop, planeFront, planeBehind;
+    private Color color = new Color(255, 128, 128, 128);
+
+    private boolean isOutlined = false, isBoxOutlined = false;
+    private float outlineWeight = 1F;
+    private Color outlineColor = new Color(255, 0, 0, 0);
 
     public Box(float width, float height, float length,
                float x, float y, float z) {
@@ -55,39 +59,64 @@ public class Box extends Object3D {
 
     private void calcPosition() {
         position = new Point3D((planeRight.getPosition().x + planeLeft.getPosition().x +
-                             planeBottom.getPosition().x + planeTop.getPosition().x +
-                             planeFront.getPosition().x + planeBehind.getPosition().x)/6,
+                planeBottom.getPosition().x + planeTop.getPosition().x +
+                planeFront.getPosition().x + planeBehind.getPosition().x)/6,
 
-                            (planeRight.getPosition().y + planeLeft.getPosition().y +
-                             planeBottom.getPosition().y + planeTop.getPosition().y +
-                             planeFront.getPosition().y + planeBehind.getPosition().y)/6,
+                (planeRight.getPosition().y + planeLeft.getPosition().y +
+                        planeBottom.getPosition().y + planeTop.getPosition().y +
+                        planeFront.getPosition().y + planeBehind.getPosition().y)/6,
 
-                            (planeRight.getPosition().z + planeLeft.getPosition().z +
-                             planeBottom.getPosition().z + planeTop.getPosition().z +
-                             planeFront.getPosition().z + planeBehind.getPosition().z)/6);
+                (planeRight.getPosition().z + planeLeft.getPosition().z +
+                        planeBottom.getPosition().z + planeTop.getPosition().z +
+                        planeFront.getPosition().z + planeBehind.getPosition().z)/6);
     }
 
     @Override
     public void setPositionX(float x) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionX(x);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveX(x - position.x);
         position.x = x;
     }
 
     @Override
     public void setPositionY(float y) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionY(y);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveY(y - position.y);
         position.y = y;
     }
 
     @Override
     public void setPositionZ(float z) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionZ(z);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveZ(z - position.z);
         position.z = z;
     }
 
     @Override
     public Point3D getPosition() {
         return position;
+    }
+
+    @Override
+    public void moveX(float dx) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveX(dx);
+        position.x += dx;
+    }
+
+    @Override
+    public void moveY(float dy) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveY(dy);
+        position.y += dy;
+    }
+
+    @Override
+    public void moveZ(float dz) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveZ(dz);
+        position.z += dz;
+    }
+
+    @Override
+    public void restartRotationAngle() {
+        rotationX = 0;
+        rotationY = 0;
+        rotationZ = 0;
     }
 
     @Override
@@ -209,5 +238,51 @@ public class Box extends Object3D {
     @Override
     public Color getColor() {
         return color;
+    }
+
+    @Override
+    public void outline(boolean isOutlined) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outline(isOutlined);
+        this.isOutlined = isOutlined;
+    }
+
+    @Override
+    public boolean isOutline() {
+        return isOutlined;
+    }
+
+    @Override
+    public void outlineWeight(float px) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineWeight(px);
+        outlineWeight = px;
+    }
+
+    @Override
+    public float getOutlineWeight() {
+        return outlineWeight;
+    }
+
+    @Override
+    public void outlineColor(int alpha, int red, int green, int blue) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineColor(alpha, red, green, blue);
+        outlineColor.alpha = alpha;
+        outlineColor.red = red;
+        outlineColor.green = green;
+        outlineColor.blue = blue;
+    }
+
+    @Override
+    public Color getOutlineColor() {
+        return outlineColor;
+    }
+
+    public void outlineBox(boolean isBoxOutlined) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineSpecial(isBoxOutlined);
+        this.isBoxOutlined = isBoxOutlined;
+        this.isOutlined = isBoxOutlined;
+    }
+
+    public boolean isOutlineBox() {
+        return isBoxOutlined;
     }
 }

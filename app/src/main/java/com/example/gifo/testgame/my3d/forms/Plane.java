@@ -16,8 +16,12 @@ public class Plane extends Object3D {
     private Point3D position;
     private ArrayList<Polygon> poly = new ArrayList<Polygon>();
     private float rotationX = 0f, rotationY = 0f, rotationZ = 0f;
-    Polygon polyRight, polyLeft;
-    Color color = new Color(255, 128, 128, 128);
+    private Polygon polyRight, polyLeft;
+    private Color color = new Color(255, 128, 128, 128);
+
+    private boolean isOutlined = false, isPlaneOutlined = false;
+    private float outlineWeight = 1F;
+    private Color outlineColor = new Color(255, 0, 0, 0);
 
     public Plane(float width, float height,
                  float xPosition,
@@ -28,12 +32,12 @@ public class Plane extends Object3D {
         float h = Math.abs(height);
 
         polyRight = new Polygon(xPosition + w/2, yPosition + h/2, zPosition,
-                                xPosition - w/2, yPosition + h/2, zPosition,
-                                xPosition - w/2, yPosition - h/2, zPosition);
+                xPosition - w/2, yPosition + h/2, zPosition,
+                xPosition - w/2, yPosition - h/2, zPosition);
 
         polyLeft = new Polygon(xPosition + w/2, yPosition + h/2, zPosition,
-                               xPosition - w/2, yPosition - h/2, zPosition,
-                               xPosition + w/2, yPosition - h/2, zPosition);
+                xPosition + w/2, yPosition - h/2, zPosition,
+                xPosition - w/2, yPosition - h/2, zPosition);
 
         poly.add(polyRight);
         poly.add(polyLeft);
@@ -42,31 +46,56 @@ public class Plane extends Object3D {
 
     private void calcPosition() {
         position = new Point3D((polyRight.getPosition().x + polyLeft.getPosition().x)/2,
-                               (polyRight.getPosition().y + polyLeft.getPosition().y)/2,
-                               (polyRight.getPosition().z + polyLeft.getPosition().z)/2);
+                (polyRight.getPosition().y + polyLeft.getPosition().y)/2,
+                (polyRight.getPosition().z + polyLeft.getPosition().z)/2);
     }
 
     @Override
     public void setPositionX(float x) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionX(x);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveX(x - position.x);
         position.x = x;
     }
 
     @Override
     public void setPositionY(float y) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionY(y);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveY(y - position.y);
         position.y = y;
     }
 
     @Override
     public void setPositionZ(float z) {
-        for (int i = 0; i < poly.size(); i++) poly.get(i).setPositionZ(z);
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveZ(z - position.z);
         position.z = z;
     }
 
     @Override
     public Point3D getPosition() {
         return position;
+    }
+
+    @Override
+    public void moveX(float dx) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveX(dx);
+        position.x += dx;
+    }
+
+    @Override
+    public void moveY(float dy) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveY(dy);
+        position.y += dy;
+    }
+
+    @Override
+    public void moveZ(float dz) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).moveZ(dz);
+        position.z += dz;
+    }
+
+    @Override
+    public void restartRotationAngle() {
+        rotationX = 0;
+        rotationY = 0;
+        rotationZ = 0;
     }
 
     @Override
@@ -158,5 +187,51 @@ public class Plane extends Object3D {
     @Override
     public Color getColor() {
         return color;
+    }
+
+    @Override
+    public void outline(boolean isOutlined) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outline(isOutlined);
+        this.isOutlined = isOutlined;
+    }
+
+    @Override
+    public boolean isOutline() {
+        return isOutlined;
+    }
+
+    @Override
+    public void outlineWeight(float px) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineWeight(px);
+        outlineWeight = px;
+    }
+
+    @Override
+    public float getOutlineWeight() {
+        return outlineWeight;
+    }
+
+    @Override
+    public void outlineColor(int alpha, int red, int green, int blue) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineColor(alpha, red, green, blue);
+        outlineColor.alpha = alpha;
+        outlineColor.red = red;
+        outlineColor.green = green;
+        outlineColor.blue = blue;
+    }
+
+    @Override
+    public Color getOutlineColor() {
+        return outlineColor;
+    }
+
+    public void outlinePlane(boolean isPlaneOutlined) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).outlineSpecial(isPlaneOutlined);
+        this.isPlaneOutlined = isPlaneOutlined;
+        this.isOutlined = isPlaneOutlined;
+    }
+
+    public boolean isOutlinePlane() {
+        return isPlaneOutlined;
     }
 }

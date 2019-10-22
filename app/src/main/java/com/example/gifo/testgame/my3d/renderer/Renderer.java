@@ -3,12 +3,12 @@ package com.example.gifo.testgame.my3d.renderer;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
 
 import com.example.gifo.testgame.my3d.Scene3D;
 import com.example.gifo.testgame.my3d.forms.Polygon;
 
 import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Created by gifo on 17.10.2019.
@@ -19,19 +19,13 @@ public class Renderer {
     private Scene3D scene;
     private float width, height;
     private float x = 0f, y = 0f, xCenter, yCenter;
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Path path = new Path();
+    private Paint paint = new Paint();
     private Color clearColor = new Color(255, 255, 255, 255);
 
     public float zoom = 1f;
     public float flatCamera = 1f;
     public float narrowCamera = 150f;
-
-    private static final Comparator<Polygon> Z_BUFFER_SORT = new Comparator<Polygon>() {
-        @Override
-        public int compare(Polygon lhs, Polygon rhs) {
-            return (int) (lhs.getPosition().z - rhs.getPosition().z);
-        }
-    };
 
     public Renderer(Scene3D scene, float width, float height) {
         this.scene = scene;
@@ -74,7 +68,7 @@ public class Renderer {
     }
 
     private void zBuffering() {
-        Collections.sort(scene.polygons(), Collections.reverseOrder(Renderer.Z_BUFFER_SORT));
+        Collections.sort(scene.polygons());
     }
 
     private boolean isVisiblePolygon(float x1, float y1, float x2, float y2, float x3, float y3) {
@@ -100,14 +94,27 @@ public class Renderer {
 
             if (isVisiblePolygon(x1, y1, x2, y2, x3, y3)) {
                 Color color = polygon.getColor();
-                this.paint.setARGB(color.alpha, color.red, color.green, color.blue);
+                paint.setARGB(color.alpha, color.red, color.green, color.blue);
 
-                Path path = new Path();
+                path.reset();
                 path.moveTo(x1, y1);
                 path.lineTo(x2, y2);
                 path.lineTo(x3, y3);
 
-                canvas.drawPath(path, this.paint);
+                canvas.drawPath(path, paint);
+
+                // сокрытие диагональных прощелин
+                paint.setStrokeWidth(2);
+                canvas.drawLine(x1, y1, x3, y3, paint);
+
+                if (polygon.isOutline()) {
+                    Color lineColor = polygon.getOutlineColor();
+                    paint.setARGB(lineColor.alpha, lineColor.red, lineColor.green, lineColor.blue);
+                    paint.setStrokeWidth(polygon.getOutlineWeight());
+                    canvas.drawLine(x1, y1, x2, y2, paint);
+                    canvas.drawLine(x2, y2, x3, y3, paint);
+                    if (!polygon.isOutlineSpecial()) canvas.drawLine(x3, y3, x1, y1, paint);
+                }
             }
         }
     }

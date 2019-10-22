@@ -11,6 +11,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                              WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+
         setContentView(new SurfaceView3D(this));
     }
 }

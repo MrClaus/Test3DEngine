@@ -1,5 +1,9 @@
 # Test3DEngine
 
+3d physics
+----
+![](screenshots/3d with physics.gif)
+
 Screenshots
 ------------
 

@@ -2,7 +2,7 @@
 
 3d physics
 ----
-![](screenshots/3d with physics.gif)
+![alt text](screenshots/3d with physics.gif)
 
 Screenshots
 ------------

@@ -11,6 +11,10 @@ import com.example.gifo.testgame.my3d.Scene3D;
 import com.example.gifo.testgame.my3d.forms.Box;
 import com.example.gifo.testgame.my3d.forms.Plane;
 import com.example.gifo.testgame.my3d.renderer.Renderer;
+import com.example.gifo.testgame.myPhysics.BubblePhysics;
+import com.example.gifo.testgame.myPhysics.PhysicalObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by gifo on 22.10.2019.
@@ -56,6 +60,7 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
 
         Scene3D scene;
         Renderer render;
+        BubblePhysics physics;
         Object3D spaceship;
         Box box;
         float angle = 0;
@@ -71,21 +76,30 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
 
         void init() {
             scene = new Scene3D();
+
             spaceship = new Spaceship().getObject();
             spaceship.setPosition(0,-16,0);
-            scene.add(spaceship);
+            spaceship.merge();
+
+            box = new Box(10, 10, 10, 0, 20, 0);
+            box.color(255, 200, 200, 200);
+            box.outlineBox(true);
+            box.merge();
 
             Plane plane = new Plane(64, 64, 0, -50, 0);
             plane.setRotationX(90);
             plane.outlinePlane(true);
             plane.outlineWeight(2);
             plane.color(255, 255, 255, 0);
+            plane.merge();
+
+            scene.add(spaceship);
+            scene.add(box);
             scene.add(plane);
 
-            box = new Box(10, 10, 10, 0, 20, 0);
-            box.color(255, 200, 200, 200);
-            box.outlineBox(true);
-            scene.add(box);
+            physics = new BubblePhysics(scene);
+            physics.addObject(spaceship);
+            physics.addObject(box);
 
             render = new Renderer(scene, 1080, 1512);
             render.narrowCamera = 85;
@@ -93,11 +107,26 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
         }
 
         void onDraw(Canvas canvas) {
-
-            box.setRotation(angle, angle, angle);
-            spaceship.setRotationY(angle);
             angle += 1.0f;
 
+            if (!physics.action.isAction(spaceship)) spaceship.setRotationY(angle);
+            if (!physics.action.isAction(box)) {
+                box.setRotation(angle, angle, angle);
+                box.moveY(-angle*0.001f);
+            }
+
+            physics.collisions(box, new PhysicalObject.Observer() {
+                @Override
+                public void listener(Object3D object) {
+                    physics.action.bang(object, 0.5f);
+                    physics.action.fade(object, 3000);
+
+                    physics.action.bang(box, 0.2f);
+                    physics.action.fade(box, 5000);
+                }
+            });
+
+            physics.execute();
             render.render(canvas);
         }
 

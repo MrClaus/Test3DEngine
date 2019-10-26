@@ -33,6 +33,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
     private float outlineWeight = 1F;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
+    private Polygon original = this;
 
     public Polygon(float x1, float y1, float z1,
                    float x2, float y2, float z2,
@@ -132,8 +133,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
         calcPosition();
     }
 
-    @Override
-    public void restartRotationAngle() {
+    private void restartRotationAngle() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
@@ -183,11 +183,34 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
     }
 
     @Override
+    public void color(int red, int green, int blue) {
+        color.red = red;
+        color.green = green;
+        color.blue = blue;
+    }
+
+    @Override
     public void color(int alpha, int red, int green, int blue) {
         color.alpha = alpha;
         color.red = red;
         color.green = green;
         color.blue = blue;
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        int a = original.getAlpha();
+        color.alpha = a * alpha/255;
+        Color lineColor = original.getOutlineColor();
+        outlineColor(lineColor.alpha * alpha/255,
+                lineColor.red,
+                lineColor.green,
+                lineColor.blue);
+    }
+
+    @Override
+    public int getAlpha() {
+        return color.alpha;
     }
 
     @Override
@@ -235,5 +258,24 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
 
     public boolean isOutlineSpecial() {
         return isOutlineSpecial;
+    }
+
+    @Override
+    public void merge() {
+        original = new Polygon(this.mesh().get(0).x, this.mesh().get(0).y, this.mesh().get(0).z,
+                this.mesh().get(1).x, this.mesh().get(1).y, this.mesh().get(1).z,
+                this.mesh().get(2).x, this.mesh().get(2).y, this.mesh().get(2).z);
+        original.color(this.getAlpha(),
+                this.getColor().red,
+                this.getColor().green,
+                this.getColor().blue);
+        original.outline(this.isOutlined);
+        original.outlineSpecial(this.isOutlineSpecial);
+        original.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        original.outlineWeight(this.getOutlineWeight());
+        restartRotationAngle();
     }
 }

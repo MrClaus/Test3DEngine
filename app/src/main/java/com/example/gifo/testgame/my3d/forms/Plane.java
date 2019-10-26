@@ -23,21 +23,24 @@ public class Plane extends Object3D {
     private float outlineWeight = 1F;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
+    private Plane original = this;
+    private float width, height;
+
     public Plane(float width, float height,
                  float xPosition,
                  float yPosition,
                  float zPosition) {
 
-        float w = Math.abs(width);
-        float h = Math.abs(height);
+        this.width = Math.abs(width);
+        this.height = Math.abs(height);
 
-        polyRight = new Polygon(xPosition + w/2, yPosition + h/2, zPosition,
-                xPosition - w/2, yPosition + h/2, zPosition,
-                xPosition - w/2, yPosition - h/2, zPosition);
+        polyRight = new Polygon(xPosition + this.width/2, yPosition + this.height/2, zPosition,
+                xPosition - this.width/2, yPosition + this.height/2, zPosition,
+                xPosition - this.width/2, yPosition - this.height/2, zPosition);
 
-        polyLeft = new Polygon(xPosition + w/2, yPosition + h/2, zPosition,
-                xPosition + w/2, yPosition - h/2, zPosition,
-                xPosition - w/2, yPosition - h/2, zPosition);
+        polyLeft = new Polygon(xPosition + this.width/2, yPosition + this.height/2, zPosition,
+                xPosition + this.width/2, yPosition - this.height/2, zPosition,
+                xPosition - this.width/2, yPosition - this.height/2, zPosition);
 
         poly.add(polyRight);
         poly.add(polyLeft);
@@ -91,8 +94,7 @@ public class Plane extends Object3D {
         position.z += dz;
     }
 
-    @Override
-    public void restartRotationAngle() {
+    private void restartRotationAngle() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
@@ -176,12 +178,39 @@ public class Plane extends Object3D {
     }
 
     @Override
+    public void color(int red, int green, int blue) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).color(red, green, blue);
+        color.red = red;
+        color.green = green;
+        color.blue = blue;
+    }
+
+    @Override
     public void color(int alpha, int red, int green, int blue) {
         for (int i = 0; i < poly.size(); i++) poly.get(i).color(alpha, red, green, blue);
         color.alpha = alpha;
         color.red = red;
         color.green = green;
         color.blue = blue;
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        for (int i = 0; i < poly.size(); i++) {
+            int a =  original.polygons().get(i).getAlpha();
+            poly.get(i).setAlpha(a * alpha/255);
+            Color lineColor = original.polygons().get(i).getOutlineColor();
+            poly.get(i).outlineColor(lineColor.alpha * alpha/255,
+                    lineColor.red,
+                    lineColor.green,
+                    lineColor.blue);
+        }
+        color.alpha = alpha;
+    }
+
+    @Override
+    public int getAlpha() {
+        return color.alpha;
     }
 
     @Override
@@ -233,5 +262,24 @@ public class Plane extends Object3D {
 
     public boolean isOutlinePlane() {
         return isPlaneOutlined;
+    }
+
+    @Override
+    public void merge() {
+        original = new Plane(width, height, position.x, position.y, position.z);
+        original.setRotation(rotationX, rotationY, rotationZ);
+        original.setScale(scale);
+        original.color(this.getAlpha(),
+                this.getColor().red,
+                this.getColor().green,
+                this.getColor().blue);
+        original.outline(this.isOutlined);
+        original.outlinePlane(this.isPlaneOutlined);
+        original.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        original.outlineWeight(this.getOutlineWeight());
+        restartRotationAngle();
     }
 }

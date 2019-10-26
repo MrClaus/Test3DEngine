@@ -23,27 +23,30 @@ public class Box extends Object3D {
     private float outlineWeight = 1F;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
+    private Box original = this;
+    private float width, height, length;
+
     public Box(float width, float height, float length,
                float x, float y, float z) {
 
-        float w = Math.abs(width);
-        float h = Math.abs(height);
-        float l = Math.abs(length);
+        this.width = Math.abs(width);
+        this.height = Math.abs(height);
+        this.length = Math.abs(length);
 
-        planeRight = new Plane(l, h, x - w/2, y, z);
+        planeRight = new Plane(this.length, this.height, x - this.width/2, y, z);
         planeRight.setRotationY(90);
 
-        planeLeft = new Plane(l, h, x + w/2, y, z);
+        planeLeft = new Plane(this.length, this.height, x + this.width/2, y, z);
         planeLeft.setRotationY(-90);
 
-        planeBottom = new Plane(w, l, x, y - h/2, z);
+        planeBottom = new Plane(this.width, this.length, x, y - this.height/2, z);
         planeBottom.setRotationX(90);
 
-        planeTop = new Plane(w, l, x, y + h/2, z);
+        planeTop = new Plane(this.width, this.length, x, y + this.height/2, z);
         planeTop.setRotationX(-90);
 
-        planeFront = new Plane(w, h, x, y, z - l/2);
-        planeBehind = new Plane(w, h, x, y, z + l/2);
+        planeFront = new Plane(this.width, this.height, x, y, z - this.length/2);
+        planeBehind = new Plane(this.width, this.height, x, y, z + this.length/2);
         planeBehind.setRotationY(180);
 
         poly.addAll(planeRight.polygons());
@@ -52,7 +55,7 @@ public class Box extends Object3D {
         poly.addAll(planeTop.polygons());
         poly.addAll(planeFront.polygons());
         poly.addAll(planeBehind.polygons());
-        for (int i = 0; i < poly.size(); i++) poly.get(i).restartRotationAngle();
+        for (int i = 0; i < poly.size(); i++) poly.get(i).merge();
 
         calcPosition();
     }
@@ -112,7 +115,6 @@ public class Box extends Object3D {
         position.z += dz;
     }
 
-    @Override
     public void restartRotationAngle() {
         rotationX = 0;
         rotationY = 0;
@@ -197,6 +199,14 @@ public class Box extends Object3D {
     }
 
     @Override
+    public void color(int red, int green, int blue) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).color(red, green, blue);
+        color.red = red;
+        color.green = green;
+        color.blue = blue;
+    }
+
+    @Override
     public void color(int alpha, int red, int green, int blue) {
         for (int i = 0; i < poly.size(); i++) poly.get(i).color(alpha, red, green, blue);
         color.alpha = alpha;
@@ -206,33 +216,46 @@ public class Box extends Object3D {
     }
 
     public void colorRight(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeRight.polygons().size(); i++)
-            planeRight.polygons().get(i).color(alpha, red, green, blue);
+        planeRight.color(alpha, red, green, blue);
     }
 
     public void colorLeft(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeLeft.polygons().size(); i++)
-            planeLeft.polygons().get(i).color(alpha, red, green, blue);
+        planeLeft.color(alpha, red, green, blue);
     }
 
     public void colorBottom(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeBottom.polygons().size(); i++)
-            planeBottom.polygons().get(i).color(alpha, red, green, blue);
+        planeBottom.color(alpha, red, green, blue);
     }
 
     public void colorTop(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeTop.polygons().size(); i++)
-            planeTop.polygons().get(i).color(alpha, red, green, blue);
+        planeTop.color(alpha, red, green, blue);
     }
 
     public void colorFront(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeFront.polygons().size(); i++)
-            planeFront.polygons().get(i).color(alpha, red, green, blue);
+        planeFront.color(alpha, red, green, blue);
     }
 
     public void colorBehind(int alpha, int red, int green, int blue) {
-        for (int i = 0; i < planeBehind.polygons().size(); i++)
-            planeBehind.polygons().get(i).color(alpha, red, green, blue);
+        planeBehind.color(alpha, red, green, blue);
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        for (int i = 0; i < poly.size(); i++) {
+            int a =  original.polygons().get(i).getAlpha();
+            poly.get(i).setAlpha(a * alpha/255);
+            Color lineColor = original.polygons().get(i).getOutlineColor();
+            poly.get(i).outlineColor(lineColor.alpha * alpha/255,
+                    lineColor.red,
+                    lineColor.green,
+                    lineColor.blue);
+        }
+        color.alpha = alpha;
+    }
+
+    @Override
+    public int getAlpha() {
+        return color.alpha;
     }
 
     @Override
@@ -284,5 +307,48 @@ public class Box extends Object3D {
 
     public boolean isOutlineBox() {
         return isBoxOutlined;
+    }
+
+    @Override
+    public void merge() {
+        original = new Box(width, height, length, position.x, position.y, position.z);
+        original.setRotation(rotationX, rotationY, rotationZ);
+        original.setScale(scale);
+        original.color(getAlpha(),
+                getColor().red,
+                getColor().green,
+                getColor().blue);
+        original.planeLeft.color(planeLeft.getColor().alpha,
+                planeLeft.getColor().red,
+                planeLeft.getColor().green,
+                planeLeft.getColor().blue);
+        original.planeRight.color(planeRight.getColor().alpha,
+                planeRight.getColor().red,
+                planeRight.getColor().green,
+                planeRight.getColor().blue);
+        original.planeTop.color(planeTop.getColor().alpha,
+                planeTop.getColor().red,
+                planeTop.getColor().green,
+                planeTop.getColor().blue);
+        original.planeBottom.color(planeBottom.getColor().alpha,
+                planeBottom.getColor().red,
+                planeBottom.getColor().green,
+                planeBottom.getColor().blue);
+        original.planeFront.color(planeFront.getColor().alpha,
+                planeFront.getColor().red,
+                planeFront.getColor().green,
+                planeFront.getColor().blue);
+        original.planeBehind.color(planeBehind.getColor().alpha,
+                planeBehind.getColor().red,
+                planeBehind.getColor().green,
+                planeBehind.getColor().blue);
+        original.outline(this.isOutlined);
+        original.outlineBox(this.isOutlineBox());
+        original.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        original.outlineWeight(this.getOutlineWeight());
+        restartRotationAngle();
     }
 }

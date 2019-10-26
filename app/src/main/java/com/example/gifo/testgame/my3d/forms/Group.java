@@ -22,13 +22,15 @@ public class Group extends Object3D {
     private float outlineWeight = 1F;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
+    private Group original = this;
+
     public Group(Object3D firstObject) {
         addObject(firstObject);
     }
 
     public void addObject(Object3D object) {
         poly.addAll(object.polygons());
-        object.restartRotationAngle();
+        object.merge();
         calcPosition();
     }
 
@@ -83,7 +85,6 @@ public class Group extends Object3D {
         position.z += dz;
     }
 
-    @Override
     public void restartRotationAngle() {
         rotationX = 0;
         rotationY = 0;
@@ -168,12 +169,39 @@ public class Group extends Object3D {
     }
 
     @Override
+    public void color(int red, int green, int blue) {
+        for (int i = 0; i < poly.size(); i++) poly.get(i).color(red, green, blue);
+        color.red = red;
+        color.green = green;
+        color.blue = blue;
+    }
+
+    @Override
     public void color(int alpha, int red, int green, int blue) {
         for (int i = 0; i < poly.size(); i++) poly.get(i).color(alpha, red, green, blue);
         color.alpha = alpha;
         color.red = red;
         color.green = green;
         color.blue = blue;
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        for (int i = 0; i < poly.size(); i++) {
+            int a =  original.polygons().get(i).getAlpha();
+            poly.get(i).setAlpha(a * alpha/255);
+            Color lineColor = original.polygons().get(i).getOutlineColor();
+            poly.get(i).outlineColor(lineColor.alpha * alpha/255,
+                    lineColor.red,
+                    lineColor.green,
+                    lineColor.blue);
+        }
+        color.alpha = alpha;
+    }
+
+    @Override
+    public int getAlpha() {
+        return color.alpha;
     }
 
     @Override
@@ -215,5 +243,30 @@ public class Group extends Object3D {
     @Override
     public Color getOutlineColor() {
         return outlineColor;
+    }
+
+    @Override
+    public void merge() {
+        for (int i=0; i<polygons().size(); i++) {
+            Polygon poly = polygons().get(i);
+            ArrayList<Point3D> points = polygons().get(i).mesh();
+            Polygon copy = new Polygon(poly.mesh().get(0).x, poly.mesh().get(0).y, poly.mesh().get(0).z,
+                    poly.mesh().get(1).x, poly.mesh().get(1).y, poly.mesh().get(1).z,
+                    poly.mesh().get(2).x, poly.mesh().get(2).y, poly.mesh().get(2).z);
+            copy.color(poly.getAlpha(),
+                    poly.getColor().red,
+                    poly.getColor().green,
+                    poly.getColor().blue);
+            copy.outline(poly.isOutline());
+            copy.outlineSpecial(poly.isOutlineSpecial());
+            copy.outlineColor(poly.getOutlineColor().alpha,
+                    poly.getOutlineColor().red,
+                    poly.getOutlineColor().green,
+                    poly.getOutlineColor().blue);
+            copy.outlineWeight(poly.getOutlineWeight());
+            if (i==0) original = new Group(copy);
+            else original.addObject(copy);
+        }
+        restartRotationAngle();
     }
 }

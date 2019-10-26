@@ -11,6 +11,8 @@ import com.example.gifo.testgame.my3d.forms.Box;
 import com.example.gifo.testgame.my3d.forms.Plane;
 import com.example.gifo.testgame.my3d.renderer.Renderer;
 
+import java.util.ArrayList;
+
 /**
  * Created by gifo on 22.10.2019.
  */
@@ -34,18 +36,22 @@ public class View3D extends View {
 
         spaceship = new Spaceship().getObject();
         spaceship.setPosition(0,-16,0);
-        scene.add(spaceship);
+        spaceship.merge();
 
         Plane plane = new Plane(64, 64, 0, -45, 0);
         plane.setRotationX(90);
         plane.outlinePlane(true);
         plane.outlineWeight(2);
         plane.color(255, 255, 255, 0);
-        scene.add(plane);
+        plane.merge();
 
         box = new Box(10, 10, 10, 0, 20, 0);
         box.color(255, 200, 200, 200);
         box.outlineBox(true);
+        box.merge();
+
+        scene.add(spaceship);
+        scene.add(plane);
         scene.add(box);
 
         render = new Renderer(scene, 1080, 1512);
@@ -59,10 +65,10 @@ public class View3D extends View {
     // Цикличная прорисовка сцены
     @Override
     protected void onDraw(Canvas canvas) {
+        angle += 1.0f;
 
         box.setRotation(angle, angle, angle);
         spaceship.setRotationY(angle);
-        angle += 1.0f;
 
         render.render(canvas);
 

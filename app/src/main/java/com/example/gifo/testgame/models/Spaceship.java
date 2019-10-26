@@ -170,6 +170,8 @@ public class Spaceship {
         model.addObject((Object3D) body);
         model.addObject((Object3D) flayerL);
         model.addObject((Object3D) flayerR);
+
+        model.merge();
     }
 
     public Object3D getObject() {

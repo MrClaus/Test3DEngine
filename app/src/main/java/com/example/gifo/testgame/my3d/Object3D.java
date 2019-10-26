@@ -41,8 +41,6 @@ public abstract class Object3D {
 
     public abstract float getScale();
 
-    public abstract void restartRotationAngle();
-
     public void setRotation(float ox, float oy, float oz) {
         setRotationX(ox);
         setRotationY(oy);
@@ -120,8 +118,11 @@ public abstract class Object3D {
         }
     }
 
+    public abstract void color(int red, int green, int blue);
     public abstract void color(int alpha, int red, int green, int blue);
     public abstract Color getColor();
+    public abstract void setAlpha(int alpha);
+    public abstract int getAlpha();
 
     public abstract void outline(boolean isOutlined);
     public abstract boolean isOutline();
@@ -129,4 +130,6 @@ public abstract class Object3D {
     public abstract void outlineColor(int alpha, int red, int green, int blue);
     public abstract float getOutlineWeight();
     public abstract Color getOutlineColor();
+
+    public abstract void merge();
 }

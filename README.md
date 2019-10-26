@@ -2,7 +2,7 @@
 
 3d physics
 ----
-![alt text](screenshots/3d with physics.gif)
+![alt text](screenshots/3d%20with%20physics.gif)
 
 Screenshots
 ------------

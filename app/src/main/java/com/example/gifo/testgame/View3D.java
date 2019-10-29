@@ -38,14 +38,14 @@ public class View3D extends View {
         spaceship.setPosition(0,-16,0);
         spaceship.merge();
 
-        Plane plane = new Plane(64, 64, 0, -45, 0);
+        Plane plane = new Plane(64, 64, 0, -40, 0);
         plane.setRotationX(90);
         plane.outlinePlane(true);
         plane.outlineWeight(2);
         plane.color(255, 255, 255, 0);
         plane.merge();
 
-        box = new Box(10, 10, 10, 0, 20, 0);
+        box = new Box(10, 10, 10, 0, 30, 0);
         box.color(255, 200, 200, 200);
         box.outlineBox(true);
         box.merge();
@@ -54,9 +54,10 @@ public class View3D extends View {
         scene.add(plane);
         scene.add(box);
 
-        render = new Renderer(scene, 1080, 1512);
+        render = new Renderer(scene, 1920, 1080);
         render.narrowCamera = 85;
-        render.zoom = 8;
+        render.zoom = 7;
+        render.zHide = -50;
     }
 
     int fps = 60, counter = 0;
@@ -65,7 +66,7 @@ public class View3D extends View {
     // Цикличная прорисовка сцены
     @Override
     protected void onDraw(Canvas canvas) {
-        angle += 1.0f;
+        angle += 0.5f;
 
         box.setRotation(angle, angle, angle);
         spaceship.setRotationY(angle);

@@ -133,10 +133,11 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
         calcPosition();
     }
 
-    private void restartRotationAngle() {
+    private void restartValues() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
+        scale = 1;
     }
 
     @Override
@@ -276,6 +277,26 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         original.outlineWeight(this.getOutlineWeight());
-        restartRotationAngle();
+        restartValues();
+    }
+
+    @Override
+    public Object3D copy() {
+        Polygon copy = new Polygon(this.mesh().get(0).x, this.mesh().get(0).y, this.mesh().get(0).z,
+                this.mesh().get(1).x, this.mesh().get(1).y, this.mesh().get(1).z,
+                this.mesh().get(2).x, this.mesh().get(2).y, this.mesh().get(2).z);
+        copy.color(this.getAlpha(),
+                this.getColor().red,
+                this.getColor().green,
+                this.getColor().blue);
+        copy.outline(this.isOutlined);
+        copy.outlineSpecial(this.isOutlineSpecial);
+        copy.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        copy.outlineWeight(this.getOutlineWeight());
+        copy.merge();
+        return copy;
     }
 }

@@ -132,4 +132,5 @@ public abstract class Object3D {
     public abstract Color getOutlineColor();
 
     public abstract void merge();
+    public abstract Object3D copy();
 }

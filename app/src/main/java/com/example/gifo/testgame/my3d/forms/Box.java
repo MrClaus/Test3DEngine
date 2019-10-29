@@ -115,10 +115,11 @@ public class Box extends Object3D {
         position.z += dz;
     }
 
-    public void restartRotationAngle() {
+    private void restartValues() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
+        scale = 1;
     }
 
     @Override
@@ -349,6 +350,50 @@ public class Box extends Object3D {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         original.outlineWeight(this.getOutlineWeight());
-        restartRotationAngle();
+        restartValues();
+    }
+
+    @Override
+    public Object3D copy() {
+        Box copy = new Box(width, height, length, position.x, position.y, position.z);
+        copy.setRotation(rotationX, rotationY, rotationZ);
+        copy.setScale(scale);
+        copy.color(getAlpha(),
+                getColor().red,
+                getColor().green,
+                getColor().blue);
+        copy.planeLeft.color(planeLeft.getColor().alpha,
+                planeLeft.getColor().red,
+                planeLeft.getColor().green,
+                planeLeft.getColor().blue);
+        copy.planeRight.color(planeRight.getColor().alpha,
+                planeRight.getColor().red,
+                planeRight.getColor().green,
+                planeRight.getColor().blue);
+        copy.planeTop.color(planeTop.getColor().alpha,
+                planeTop.getColor().red,
+                planeTop.getColor().green,
+                planeTop.getColor().blue);
+        copy.planeBottom.color(planeBottom.getColor().alpha,
+                planeBottom.getColor().red,
+                planeBottom.getColor().green,
+                planeBottom.getColor().blue);
+        copy.planeFront.color(planeFront.getColor().alpha,
+                planeFront.getColor().red,
+                planeFront.getColor().green,
+                planeFront.getColor().blue);
+        copy.planeBehind.color(planeBehind.getColor().alpha,
+                planeBehind.getColor().red,
+                planeBehind.getColor().green,
+                planeBehind.getColor().blue);
+        copy.outline(this.isOutlined);
+        copy.outlineBox(this.isOutlineBox());
+        copy.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        copy.outlineWeight(this.getOutlineWeight());
+        copy.merge();
+        return copy;
     }
 }

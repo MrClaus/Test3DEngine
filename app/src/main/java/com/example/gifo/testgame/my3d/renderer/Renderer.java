@@ -3,10 +3,10 @@ package com.example.gifo.testgame.my3d.renderer;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
 
 import com.example.gifo.testgame.my3d.Scene3D;
 import com.example.gifo.testgame.my3d.forms.Polygon;
+import com.example.gifo.testgame.my3d.renderer.formats.PaintFormat;
 
 import java.util.Collections;
 
@@ -19,19 +19,42 @@ public class Renderer {
     private Scene3D scene;
     private float width, height;
     private float x = 0f, y = 0f, xCenter, yCenter;
-    Path path = new Path();
+    private float[] xo = new float[4], yo = new float[4];
+    private Path path = new Path();
     private Paint paint = new Paint();
+    private boolean clearancePlaneShading = false;
     private Color clearColor = new Color(255, 255, 255, 255);
 
     public float zoom = 1f;
     public float flatCamera = 1f;
     public float narrowCamera = 150f;
+    public float zHide = -10f;
 
     public Renderer(Scene3D scene, float width, float height) {
         this.scene = scene;
         this.width = width;
         this.height = height;
         calcCenter();
+    }
+
+    public void setFormat(PaintFormat format) {
+        switch (format) {
+            case CLEARANCE_PLANE_SHADING:
+                clearancePlaneShading = true;
+                break;
+            case NO_CLEARANCE_PLANE_SHADING:
+                clearancePlaneShading = false;
+                break;
+            case ANTI_ALIAS:
+                paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                break;
+            case DITHER_DRAW:
+                paint = new Paint(Paint.DITHER_FLAG);
+                break;
+            case BITMAP_FILTER:
+                paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+                break;
+        }
     }
 
     public void setPosition(float x, float y) {
@@ -43,6 +66,10 @@ public class Renderer {
     private void calcCenter() {
         xCenter = x + width/2;
         yCenter = y + height/2;
+        xo[0] = x;          yo[0] = y;
+        xo[1] = x + width;  yo[1] = y;
+        xo[2] = x + width;  yo[2] = y + height;
+        xo[3] = x;          yo[3] = y + height;
     }
 
     public float getPositionX() {
@@ -72,13 +99,56 @@ public class Renderer {
     }
 
     private boolean isVisiblePolygon(float x1, float y1, float x2, float y2, float x3, float y3) {
-        return ((x1 >= x && x1 < x + width) && (y1 >= y && y1 < y + height) ||
+
+        // 1. Принадлежность точек полигона полю видимости
+        boolean isVisiblePoint =  ((x1 >= x && x1 < x + width) && (y1 >= y && y1 < y + height) ||
                 (x2 >= x && x2 < x + width) && (y2 >= y && y2 < y + height) ||
                 (x3 >= x && x3 < x + width) && (y3 >= y && y3 < y + height)) ? true : false;
+        if (!isVisiblePoint)  {
+
+            // 2. Пересечение отрезков полигона с отрезками поля видимости
+            float[] xx = {x1, x2, x3}, yy = {y1, y2, y3};
+            for (int k = 0; k < 3; k++) {
+                for (int n = 0; n < 4; n++) {
+                    isVisiblePoint = intersection(xx[k], yy[k], xx[(k==2)?0:k+1], yy[(k==2)?0:k+1],
+                            xo[n], yo[n], xo[(n==3)?0:n+1], yo[(n==3)?0:n+1]);
+                    if (isVisiblePoint) {
+                        n = 3;
+                        k = 2;
+                    }
+                }
+            }
+            if (!isVisiblePoint) {
+
+                // 3. Принадлежность точек поля видимости полигону
+                for (int i=0; i<4; i++) {
+                    float check1 = (x1 - xo[i])*(y2 - y1) - (x2 - x1)*(y1 - yo[i]);
+                    float check2 = (x2 - xo[i])*(y3 - y2) - (x3 - x2)*(y2 - yo[i]);
+                    float check3 = (x3 - xo[i])*(y1 - y3) - (x1 - x3)*(y3 - yo[i]);
+                    if (Math.signum(check1) == Math.signum(check2)
+                            && Math.signum(check1) == Math.signum(check3)
+                            && check1 != 0f) {
+                        isVisiblePoint = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isVisiblePoint;
+    }
+
+    private boolean intersection(float x1, float y1, float x2, float y2,
+                                 float xx1, float yy1, float xx2, float yy2) {
+        float v1, v2, v3, v4;
+        v1 = (xx2 - xx1)*(y1 - yy1) - (yy2 - yy1)*(x1 - xx1);
+        v2 = (xx2 - xx1)*(y2 - yy1) - (yy2 - yy1)*(x2 - xx1);
+        v3 = (x2 - x1)*(yy1 - y1) - (y2 - y1)*(xx1 - x1);
+        v4 = (x2 - x1)*(yy2 - y1) - (y2 - y1)*(xx2 - x1);
+        return (v1 * v2 < 0) && (v3 * v4 < 0);
     }
 
     private void draw(Canvas canvas, Polygon polygon) {
-        if (polygon.getPosition().z > -100) {
+        if (polygon.getPosition().z > zHide) {
             float z_deform;
             z_deform = (flatCamera / (flatCamera + polygon.mesh().get(0).z / narrowCamera));
             float x1 = xCenter - zoom * polygon.mesh().get(0).x * z_deform;
@@ -104,8 +174,10 @@ public class Renderer {
                 canvas.drawPath(path, paint);
 
                 // сокрытие диагональных прощелин
-                paint.setStrokeWidth(2);
-                canvas.drawLine(x1, y1, x3, y3, paint);
+                if (clearancePlaneShading) {
+                    paint.setStrokeWidth(2);
+                    canvas.drawLine(x1, y1, x3, y3, paint);
+                }
 
                 if (polygon.isOutline()) {
                     Color lineColor = polygon.getOutlineColor();

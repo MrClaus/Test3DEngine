@@ -94,10 +94,11 @@ public class Plane extends Object3D {
         position.z += dz;
     }
 
-    private void restartRotationAngle() {
+    private void restartValues() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
+        scale = 1;
     }
 
     @Override
@@ -280,6 +281,26 @@ public class Plane extends Object3D {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         original.outlineWeight(this.getOutlineWeight());
-        restartRotationAngle();
+        restartValues();
+    }
+
+    @Override
+    public Object3D copy() {
+        Plane copy = new Plane(width, height, position.x, position.y, position.z);
+        copy.setRotation(rotationX, rotationY, rotationZ);
+        copy.setScale(scale);
+        copy.color(this.getAlpha(),
+                this.getColor().red,
+                this.getColor().green,
+                this.getColor().blue);
+        copy.outline(this.isOutlined);
+        copy.outlinePlane(this.isPlaneOutlined);
+        copy.outlineColor(this.getOutlineColor().alpha,
+                this.getOutlineColor().red,
+                this.getOutlineColor().green,
+                this.getOutlineColor().blue);
+        copy.outlineWeight(this.getOutlineWeight());
+        copy.merge();
+        return copy;
     }
 }

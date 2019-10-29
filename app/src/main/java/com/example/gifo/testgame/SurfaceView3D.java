@@ -6,6 +6,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.gifo.testgame.models.Spaceship;
+import com.example.gifo.testgame.models.Tunnel1;
 import com.example.gifo.testgame.my3d.Object3D;
 import com.example.gifo.testgame.my3d.Scene3D;
 import com.example.gifo.testgame.my3d.forms.Box;
@@ -81,12 +82,12 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
             spaceship.setPosition(0,-16,0);
             spaceship.merge();
 
-            box = new Box(10, 10, 10, 0, 20, 0);
+            box = new Box(10, 10, 10, 0, 50, 0);
             box.color(255, 200, 200, 200);
             box.outlineBox(true);
             box.merge();
 
-            Plane plane = new Plane(64, 64, 0, -50, 0);
+            Plane plane = new Plane(64, 64, 0, -40, 0);
             plane.setRotationX(90);
             plane.outlinePlane(true);
             plane.outlineWeight(2);
@@ -101,13 +102,14 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
             physics.addObject(spaceship);
             physics.addObject(box);
 
-            render = new Renderer(scene, 1080, 1512);
+            render = new Renderer(scene, 1920, 1080);
             render.narrowCamera = 85;
-            render.zoom = 8;
+            render.zoom = 7;
+            render.zHide = -50;
         }
 
         void onDraw(Canvas canvas) {
-            angle += 1.0f;
+            angle += 0.5f;
 
             if (!physics.action.isAction(spaceship)) spaceship.setRotationY(angle);
             if (!physics.action.isAction(box)) {

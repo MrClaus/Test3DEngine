@@ -85,10 +85,11 @@ public class Group extends Object3D {
         position.z += dz;
     }
 
-    public void restartRotationAngle() {
+    private void restartValues() {
         rotationX = 0;
         rotationY = 0;
         rotationZ = 0;
+        scale = 1;
     }
 
     @Override
@@ -267,6 +268,33 @@ public class Group extends Object3D {
             if (i==0) original = new Group(copy);
             else original.addObject(copy);
         }
-        restartRotationAngle();
+        restartValues();
+    }
+
+    @Override
+    public Object3D copy() {
+        Group object = null;
+        for (int i=0; i<polygons().size(); i++) {
+            Polygon poly = polygons().get(i);
+            ArrayList<Point3D> points = polygons().get(i).mesh();
+            Polygon copy = new Polygon(poly.mesh().get(0).x, poly.mesh().get(0).y, poly.mesh().get(0).z,
+                    poly.mesh().get(1).x, poly.mesh().get(1).y, poly.mesh().get(1).z,
+                    poly.mesh().get(2).x, poly.mesh().get(2).y, poly.mesh().get(2).z);
+            copy.color(poly.getAlpha(),
+                    poly.getColor().red,
+                    poly.getColor().green,
+                    poly.getColor().blue);
+            copy.outline(poly.isOutline());
+            copy.outlineSpecial(poly.isOutlineSpecial());
+            copy.outlineColor(poly.getOutlineColor().alpha,
+                    poly.getOutlineColor().red,
+                    poly.getOutlineColor().green,
+                    poly.getOutlineColor().blue);
+            copy.outlineWeight(poly.getOutlineWeight());
+            if (i==0) object = new Group(copy);
+            else object.addObject(copy);
+        }
+        object.merge();
+        return object;
     }
 }

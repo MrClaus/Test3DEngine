@@ -1,13 +1,9 @@
 # Test3DEngine
-
-3d physics
-----
-![alt text](screenshots/3d%20with%20physics.gif)
+My attempt to make a simple 3D Engine for java-games.
 
 Screenshots
 ------------
 
-My attempt to make a simple 3D Engine for java-games.
-
-![alt text](screenshots/screenshot_3.png "screen 1")
-![alt text](screenshots/screenshot_1.png "screen 2")
+3d physics | Preview
+---- | ----
+![](screenshots/3d%20with%20physics.gif) | ![](screenshots/preview.png)

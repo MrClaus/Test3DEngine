@@ -252,7 +252,7 @@ public class Group extends Object3D {
 
     @Override
     public void merge() {
-        original = new Group(copy());
+        original = (Group) copy();
         restartValues();
     }
 
@@ -261,7 +261,6 @@ public class Group extends Object3D {
         Group object = null;
         for (int i=0; i<polygons().size(); i++) {
             Polygon poly = polygons().get(i);
-            ArrayList<Point3D> points = polygons().get(i).mesh();
             Polygon copy = new Polygon(poly.mesh().get(0).x, poly.mesh().get(0).y, poly.mesh().get(0).z,
                     poly.mesh().get(1).x, poly.mesh().get(1).y, poly.mesh().get(1).z,
                     poly.mesh().get(2).x, poly.mesh().get(2).y, poly.mesh().get(2).z);

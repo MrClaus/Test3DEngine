@@ -11,8 +11,6 @@ import com.example.gifo.testgame.my3d.forms.Box;
 import com.example.gifo.testgame.my3d.forms.Plane;
 import com.example.gifo.testgame.my3d.renderer.Renderer;
 
-import java.util.ArrayList;
-
 /**
  * Created by gifo on 22.10.2019.
  */

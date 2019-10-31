@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 /**
  * Created by gifo on 16.10.2019.
+ * Реализация объекта - Плоскость как наследника класса Object3D
  */
 
 public class Plane extends Object3D {
@@ -20,7 +21,7 @@ public class Plane extends Object3D {
     private Color color = new Color(255, 128, 128, 128);
 
     private boolean isOutlined = false, isPlaneOutlined = false;
-    private float outlineWeight = 1F;
+    private float outlineWeight = 1f;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
     private Plane original = this;
@@ -47,6 +48,7 @@ public class Plane extends Object3D {
         calcPosition();
     }
 
+    // Авто-пересчёт координат позиции объекта
     private void calcPosition() {
         position = new Point3D((polyRight.getPosition().x + polyLeft.getPosition().x)/2,
                 (polyRight.getPosition().y + polyLeft.getPosition().y)/2,
@@ -94,6 +96,7 @@ public class Plane extends Object3D {
         position.z += dz;
     }
 
+    // Обнуление динамичных параметров Плоскости
     private void restartValues() {
         rotationX = 0;
         rotationY = 0;
@@ -255,32 +258,21 @@ public class Plane extends Object3D {
         return outlineColor;
     }
 
+    // Специальная обводка контура для Плоскости по прямоугольным границам (по умолчанию - обводка по полигонам)
     public void outlinePlane(boolean isPlaneOutlined) {
         for (int i = 0; i < poly.size(); i++) poly.get(i).outlineSpecial(isPlaneOutlined);
         this.isPlaneOutlined = isPlaneOutlined;
         this.isOutlined = isPlaneOutlined;
     }
 
+    // Возвращает true, если объект Плоскость является выделенным контуром по прямоугольным границам
     public boolean isOutlinePlane() {
         return isPlaneOutlined;
     }
 
     @Override
     public void merge() {
-        original = new Plane(width, height, position.x, position.y, position.z);
-        original.setRotation(rotationX, rotationY, rotationZ);
-        original.setScale(scale);
-        original.color(this.getAlpha(),
-                this.getColor().red,
-                this.getColor().green,
-                this.getColor().blue);
-        original.outline(this.isOutlined);
-        original.outlinePlane(this.isPlaneOutlined);
-        original.outlineColor(this.getOutlineColor().alpha,
-                this.getOutlineColor().red,
-                this.getOutlineColor().green,
-                this.getOutlineColor().blue);
-        original.outlineWeight(this.getOutlineWeight());
+        original = (Plane) copy();
         restartValues();
     }
 
@@ -300,7 +292,7 @@ public class Plane extends Object3D {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         copy.outlineWeight(this.getOutlineWeight());
-        copy.merge();
+        copy.restartValues();
         return copy;
     }
 }

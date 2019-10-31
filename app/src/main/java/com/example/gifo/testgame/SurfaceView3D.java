@@ -6,7 +6,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.gifo.testgame.models.Spaceship;
-import com.example.gifo.testgame.models.Tunnel1;
 import com.example.gifo.testgame.my3d.Object3D;
 import com.example.gifo.testgame.my3d.Scene3D;
 import com.example.gifo.testgame.my3d.forms.Box;
@@ -14,8 +13,6 @@ import com.example.gifo.testgame.my3d.forms.Plane;
 import com.example.gifo.testgame.my3d.renderer.Renderer;
 import com.example.gifo.testgame.myPhysics.BubblePhysics;
 import com.example.gifo.testgame.myPhysics.PhysicalObject;
-
-import java.util.ArrayList;
 
 /**
  * Created by gifo on 22.10.2019.
@@ -75,6 +72,7 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
             this.running = running;
         }
 
+        // Инициализация 3д-сцены
         void init() {
             scene = new Scene3D();
 
@@ -108,6 +106,7 @@ public class SurfaceView3D extends SurfaceView implements SurfaceHolder.Callback
             render.zHide = -50;
         }
 
+        // Отрисовка 3д-сцены
         void onDraw(Canvas canvas) {
             angle += 0.5f;
 

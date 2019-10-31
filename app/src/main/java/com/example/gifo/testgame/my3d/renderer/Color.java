@@ -2,6 +2,7 @@ package com.example.gifo.testgame.my3d.renderer;
 
 /**
  * Created by gifo on 17.10.2019.
+ * Абстракция - цвет ARGB
  */
 
 public class Color {

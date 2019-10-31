@@ -7,58 +7,64 @@ import java.util.ArrayList;
 
 /**
  * Created by gifo on 15.10.2019.
+ * Абстрактный класс-родитель 3д-объектов
  */
 
 public abstract class Object3D {
 
-    public abstract ArrayList<Polygon> polygons();
+    public abstract ArrayList<Polygon> polygons();  // возвращает массив полигонов текущего объекта
 
-    public abstract Point3D getPosition();
+    public abstract Point3D getPosition();          // возвращает позицию текущего объекта в xyz
 
+    // Задаёт позицию для текущего объекта в xyz
     public void setPosition(float x, float y, float z) {
         setPositionX(x);
         setPositionY(y);
         setPositionZ(z);
     }
 
-    public abstract void setPositionX(float x);
-    public abstract void setPositionY(float y);
-    public abstract void setPositionZ(float z);
+    public abstract void setPositionX(float x); // задаёт позицию для текущего объекта в x
+    public abstract void setPositionY(float y); // задаёт позицию для текущего объекта в y
+    public abstract void setPositionZ(float z); // задаёт позицию для текущего объекта в z
 
+    // Относительное перемещение позиции текущего объекта в xyz
     public void move(float dx, float dy, float dz) {
         moveX(dx);
         moveY(dy);
         moveZ(dz);
     }
 
-    public abstract void moveX(float dx);
-    public abstract void moveY(float dy);
-    public abstract void moveZ(float dz);
+    public abstract void moveX(float dx); // относительное перемещение позиции текущего объекта в x
+    public abstract void moveY(float dy); // относительное перемещение позиции текущего объекта в y
+    public abstract void moveZ(float dz); // относительное перемещение позиции текущего объекта в z
 
-    public abstract float getRotationX();
-    public abstract float getRotationY();
-    public abstract float getRotationZ();
-
-    public abstract float getScale();
-
+    // Задаёт углы поворота объекта вокруг локальных осей OX OY OZ
     public void setRotation(float ox, float oy, float oz) {
         setRotationX(ox);
         setRotationY(oy);
         setRotationZ(oz);
     }
 
+    // Задаёт угл поворота объекта вокруг локальной оси OX
     public void setRotationX(float ox) {
         setGlobalRotationX(ox, getPosition());
     }
 
+    // Задаёт угл поворота объекта вокруг локальной оси OY
     public void setRotationY(float oy) {
         setGlobalRotationY(oy, getPosition());
     }
 
+    // Задаёт угл поворота объекта вокруг локальной оси OZ
     public void setRotationZ(float oz) {
         setGlobalRotationZ(oz, getPosition());
     }
 
+    public abstract float getRotationX(); // возвращает угол поворота объекта вокруг оси OX
+    public abstract float getRotationY(); // возвращает угол поворота объекта вокруг оси OY
+    public abstract float getRotationZ(); // возвращает угол поворота объекта вокруг оси OZ
+
+    // Осуществляет поворот объекта вокруг оси OX относительно заданной точки
     public void setGlobalRotationX(float ox, Point3D position) {
         Polygon pl = ((Polygon) this);
         for (int i = 0; i < pl.mesh().size(); i++) {
@@ -74,6 +80,7 @@ public abstract class Object3D {
         }
     }
 
+    // Осуществляет поворот объекта вокруг оси OY относительно заданной точки
     public void setGlobalRotationY(float oy, Point3D position) {
         Polygon pl = ((Polygon) this);
         for (int i = 0; i < pl.mesh().size(); i++) {
@@ -89,6 +96,7 @@ public abstract class Object3D {
         }
     }
 
+    // Осуществляет поворот объекта вокруг оси OZ относительно заданной точки
     public void setGlobalRotationZ(float oz, Point3D position) {
         Polygon pl = ((Polygon) this);
         for (int i = 0; i < pl.mesh().size(); i++) {
@@ -104,10 +112,15 @@ public abstract class Object3D {
         }
     }
 
+    // Задаёт значение масштаба для текущего объекта
     public void setScale(float scale) {
         setGlobalScale(scale, getPosition());
     }
 
+    // Возвращает значение масштаба текущего объекта
+    public abstract float getScale(); // возвращает текущее значение масштаба объекта
+
+    // Осуществляет масштабирование текущего объекта относительно заданной точки
     public void setGlobalScale(float scale, Point3D position) {
         Polygon pl = ((Polygon) this);
         float scaled = scale / getScale();
@@ -118,19 +131,19 @@ public abstract class Object3D {
         }
     }
 
-    public abstract void color(int red, int green, int blue);
-    public abstract void color(int alpha, int red, int green, int blue);
-    public abstract Color getColor();
-    public abstract void setAlpha(int alpha);
-    public abstract int getAlpha();
+    public abstract void color(int red, int green, int blue);               // задаёт цвет объекту RGB
+    public abstract void color(int alpha, int red, int green, int blue);    // задаёт цвет объекту ARGB
+    public abstract Color getColor();           // возвращает цвет текущего объекта
+    public abstract void setAlpha(int alpha);   // задаёт прозрачность текущему объекту
+    public abstract int getAlpha();             // возвращает значение прозрачности текущего объекта
 
-    public abstract void outline(boolean isOutlined);
-    public abstract boolean isOutline();
-    public abstract void outlineWeight(float px);
-    public abstract void outlineColor(int alpha, int red, int green, int blue);
-    public abstract float getOutlineWeight();
-    public abstract Color getOutlineColor();
+    public abstract void outline(boolean isOutlined);   // задаёт контур объекту по-умолчанию
+    public abstract boolean isOutline();                // возвращает true, если объекту задан контур
+    public abstract void outlineWeight(float px);       // задаёт толщину контура в пикселях
+    public abstract void outlineColor(int alpha, int red, int green, int blue); // задаёт цвет контура ARGB
+    public abstract float getOutlineWeight();           // возвращает значение толщины контура
+    public abstract Color getOutlineColor();            // возвращает цвет контура
 
-    public abstract void merge();
-    public abstract Object3D copy();
+    public abstract Object3D copy();    // возвращает копию текущего объекта
+    public abstract void merge();       // осуществляет сборку объекта как готовой совокупности после всех изменений
 }

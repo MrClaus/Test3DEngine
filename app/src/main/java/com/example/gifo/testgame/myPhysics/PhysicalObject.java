@@ -11,6 +11,8 @@ import java.util.Random;
 
 /**
  * Created by gifo on 25.10.2019.
+ * Абстракция - физический объект.
+ * Также реализует интерфейс PhysicalAction - физические процессы.
  */
 
 public class PhysicalObject implements PhysicalAction {
@@ -43,6 +45,7 @@ public class PhysicalObject implements PhysicalAction {
         init();
     }
 
+    // Инициализация параметров физического объекта
     private void init() {
         float dx, dy, dz;
         ArrayList<Float> xField = new ArrayList<>();
@@ -60,12 +63,14 @@ public class PhysicalObject implements PhysicalAction {
         this.position = object.getPosition();
     }
 
+    // Инициализирует слушатель проверки коллизий
     protected void hit(ArrayList<PhysicalObject> physicalField, Observer callback) {
         this.physicalField = physicalField;
         this.callback = callback;
         isListens = true;
     }
 
+    // Проверка коллизий текущего объекта с объектами физики
     protected void checkHit() {
         for (int i=0; i < physicalField.size(); i++) {
             PhysicalObject o = physicalField.get(i);
@@ -115,6 +120,7 @@ public class PhysicalObject implements PhysicalAction {
         }
     }
 
+    // Исполнение физического процесса - взрыв
     protected void toBang() {
         bangAngle += 1.5;
         for (int i=0; i<bangPolyAngle.length; i++) {
@@ -128,6 +134,7 @@ public class PhysicalObject implements PhysicalAction {
         }
     }
 
+    // Исполнение физического процесса - исчезновение
     protected void toFade() {
         long currentTime = System.currentTimeMillis();
         long deltaTime = currentTime - fadeStart;

@@ -2,6 +2,7 @@ package com.example.gifo.testgame.my3d;
 
 /**
  * Created by gifo on 15.10.2019.
+ * Абстракция - 3д позиция (точка)
  */
 
 public class Point3D {

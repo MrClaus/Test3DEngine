@@ -2,6 +2,7 @@ package com.example.gifo.testgame.my3d.renderer.formats;
 
 /**
  * Created by gifo on 29.10.2019.
+ * Список настроек графического отображения рендера
  */
 
 public enum PaintFormat {

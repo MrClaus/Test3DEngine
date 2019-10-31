@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 /**
  * Created by gifo on 16.10.2019.
+ * Реализация объекта - Бокс (параллелепипед) как наследника класса Object3D
  */
 
 public class Box extends Object3D {
@@ -20,7 +21,7 @@ public class Box extends Object3D {
     private Color color = new Color(255, 128, 128, 128);
 
     private boolean isOutlined = false, isBoxOutlined = false;
-    private float outlineWeight = 1F;
+    private float outlineWeight = 1f;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
     private Box original = this;
@@ -60,6 +61,7 @@ public class Box extends Object3D {
         calcPosition();
     }
 
+    // Авто-пересчёт координат позиции объекта
     private void calcPosition() {
         position = new Point3D((planeRight.getPosition().x + planeLeft.getPosition().x +
                 planeBottom.getPosition().x + planeTop.getPosition().x +
@@ -115,6 +117,7 @@ public class Box extends Object3D {
         position.z += dz;
     }
 
+    // Обнуление динамичных параметров Бокса
     private void restartValues() {
         rotationX = 0;
         rotationY = 0;
@@ -216,26 +219,32 @@ public class Box extends Object3D {
         color.blue = blue;
     }
 
+    // Изменение цвета правой плоскости Бокса
     public void colorRight(int alpha, int red, int green, int blue) {
         planeRight.color(alpha, red, green, blue);
     }
 
+    // Изменение цвета левой плоскости Бокса
     public void colorLeft(int alpha, int red, int green, int blue) {
         planeLeft.color(alpha, red, green, blue);
     }
 
+    // Изменение цвета нижней плоскости Бокса
     public void colorBottom(int alpha, int red, int green, int blue) {
         planeBottom.color(alpha, red, green, blue);
     }
 
+    // Изменение цвета верхней плоскости Бокса
     public void colorTop(int alpha, int red, int green, int blue) {
         planeTop.color(alpha, red, green, blue);
     }
 
+    // Изменение цвета передней плоскости Бокса
     public void colorFront(int alpha, int red, int green, int blue) {
         planeFront.color(alpha, red, green, blue);
     }
 
+    // Изменение цвета задней плоскости Бокса
     public void colorBehind(int alpha, int red, int green, int blue) {
         planeBehind.color(alpha, red, green, blue);
     }
@@ -300,56 +309,21 @@ public class Box extends Object3D {
         return outlineColor;
     }
 
+    // Специальная обводка контура для Бокса по прямоугольным плоскостям (по умолчанию - обводка по полигонам)
     public void outlineBox(boolean isBoxOutlined) {
         for (int i = 0; i < poly.size(); i++) poly.get(i).outlineSpecial(isBoxOutlined);
         this.isBoxOutlined = isBoxOutlined;
         this.isOutlined = isBoxOutlined;
     }
 
+    // Возвращает true, если объект Бокс является выделенным контуром по прямоугольным плоскостям
     public boolean isOutlineBox() {
         return isBoxOutlined;
     }
 
     @Override
     public void merge() {
-        original = new Box(width, height, length, position.x, position.y, position.z);
-        original.setRotation(rotationX, rotationY, rotationZ);
-        original.setScale(scale);
-        original.color(getAlpha(),
-                getColor().red,
-                getColor().green,
-                getColor().blue);
-        original.planeLeft.color(planeLeft.getColor().alpha,
-                planeLeft.getColor().red,
-                planeLeft.getColor().green,
-                planeLeft.getColor().blue);
-        original.planeRight.color(planeRight.getColor().alpha,
-                planeRight.getColor().red,
-                planeRight.getColor().green,
-                planeRight.getColor().blue);
-        original.planeTop.color(planeTop.getColor().alpha,
-                planeTop.getColor().red,
-                planeTop.getColor().green,
-                planeTop.getColor().blue);
-        original.planeBottom.color(planeBottom.getColor().alpha,
-                planeBottom.getColor().red,
-                planeBottom.getColor().green,
-                planeBottom.getColor().blue);
-        original.planeFront.color(planeFront.getColor().alpha,
-                planeFront.getColor().red,
-                planeFront.getColor().green,
-                planeFront.getColor().blue);
-        original.planeBehind.color(planeBehind.getColor().alpha,
-                planeBehind.getColor().red,
-                planeBehind.getColor().green,
-                planeBehind.getColor().blue);
-        original.outline(this.isOutlined);
-        original.outlineBox(this.isOutlineBox());
-        original.outlineColor(this.getOutlineColor().alpha,
-                this.getOutlineColor().red,
-                this.getOutlineColor().green,
-                this.getOutlineColor().blue);
-        original.outlineWeight(this.getOutlineWeight());
+        original = (Box) copy();
         restartValues();
     }
 
@@ -393,7 +367,7 @@ public class Box extends Object3D {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         copy.outlineWeight(this.getOutlineWeight());
-        copy.merge();
+        copy.restartValues();
         return copy;
     }
 }

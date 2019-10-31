@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 /**
  * Created by gifo on 20.10.2019.
+ * Реализация объекта - Группа (совокупная модель из 3д-примитивов) как наследника класса Object3D
  */
 
 public class Group extends Object3D {
@@ -19,7 +20,7 @@ public class Group extends Object3D {
     private Color color = new Color(255, 128, 128, 128);
 
     private boolean isOutlined = false;
-    private float outlineWeight = 1F;
+    private float outlineWeight = 1f;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
     private Group original = this;
@@ -28,12 +29,14 @@ public class Group extends Object3D {
         addObject(firstObject);
     }
 
+    // Добавление в Группу нового 3д-примитива
     public void addObject(Object3D object) {
         poly.addAll(object.polygons());
         object.merge();
         calcPosition();
     }
 
+    // Авто-пересчёт координат позиции объекта
     private void calcPosition() {
         float xo = 0, yo = 0, zo = 0;
         for (int i = 0; i < poly.size(); i++) {
@@ -85,6 +88,7 @@ public class Group extends Object3D {
         position.z += dz;
     }
 
+    // Обнуление динамичных параметров Группы (модели)
     private void restartValues() {
         rotationX = 0;
         rotationY = 0;
@@ -248,26 +252,7 @@ public class Group extends Object3D {
 
     @Override
     public void merge() {
-        for (int i=0; i<polygons().size(); i++) {
-            Polygon poly = polygons().get(i);
-            ArrayList<Point3D> points = polygons().get(i).mesh();
-            Polygon copy = new Polygon(poly.mesh().get(0).x, poly.mesh().get(0).y, poly.mesh().get(0).z,
-                    poly.mesh().get(1).x, poly.mesh().get(1).y, poly.mesh().get(1).z,
-                    poly.mesh().get(2).x, poly.mesh().get(2).y, poly.mesh().get(2).z);
-            copy.color(poly.getAlpha(),
-                    poly.getColor().red,
-                    poly.getColor().green,
-                    poly.getColor().blue);
-            copy.outline(poly.isOutline());
-            copy.outlineSpecial(poly.isOutlineSpecial());
-            copy.outlineColor(poly.getOutlineColor().alpha,
-                    poly.getOutlineColor().red,
-                    poly.getOutlineColor().green,
-                    poly.getOutlineColor().blue);
-            copy.outlineWeight(poly.getOutlineWeight());
-            if (i==0) original = new Group(copy);
-            else original.addObject(copy);
-        }
+        original = new Group(copy());
         restartValues();
     }
 
@@ -294,7 +279,7 @@ public class Group extends Object3D {
             if (i==0) object = new Group(copy);
             else object.addObject(copy);
         }
-        object.merge();
+        object.restartValues();
         return object;
     }
 }

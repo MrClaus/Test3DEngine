@@ -12,6 +12,7 @@ import java.util.Collections;
 
 /**
  * Created by gifo on 17.10.2019.
+ * Renderer - прорисовка 3д-сцены
  */
 
 public class Renderer {
@@ -25,10 +26,10 @@ public class Renderer {
     private boolean clearancePlaneShading = false;
     private Color clearColor = new Color(255, 255, 255, 255);
 
-    public float zoom = 1f;
-    public float flatCamera = 1f;
-    public float narrowCamera = 150f;
-    public float zHide = -10f;
+    public float zoom = 1f;             // масштаб прорисовки кадра
+    public float flatCamera = 1f;       // степень плоскости отображения 3д
+    public float narrowCamera = 150f;   // степень узости отображения 3д
+    public float zHide = -10f;          // позиция Z сокрытия объектов за наблюдателем
 
     public Renderer(Scene3D scene, float width, float height) {
         this.scene = scene;
@@ -37,6 +38,7 @@ public class Renderer {
         calcCenter();
     }
 
+    // Устанавливает формат графического отображения рендера
     public void setFormat(PaintFormat format) {
         switch (format) {
             case CLEARANCE_PLANE_SHADING:
@@ -57,12 +59,14 @@ public class Renderer {
         }
     }
 
+    // Устанавливает позицию видимого окна на экране
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
         calcCenter();
     }
 
+    // Пересчёт координат поля видимости рендера
     private void calcCenter() {
         xCenter = x + width/2;
         yCenter = y + height/2;
@@ -72,40 +76,45 @@ public class Renderer {
         xo[3] = x;          yo[3] = y + height;
     }
 
+    // Возвращает текущую позицию X поля видимости рендера
     public float getPositionX() {
         return this.x;
     }
 
+    // Возвращает текущую позицию Y поля видимости рендера
     public float getPositionY() {
         return this.y;
     }
 
+    // Возвращает ширину поля видимости рендера
     public float width() {
         return this.width;
     }
 
+    // Возвращает высоту поля видимости рендера
     public float height() {
         return this.height;
     }
 
+    // Задаёт цвет очистки экрана
     public void clearColor(int red, int green, int blue) {
         clearColor.red = red;
         clearColor.green = green;
         clearColor.blue = blue;
     }
 
+    // Алгоритм ранжирования полигонов сцены
     private void zBuffering() {
         Collections.sort(scene.polygons());
     }
 
+    // Алгоритм определения видимости полигонов относительно поля видимости рендера
     private boolean isVisiblePolygon(float x1, float y1, float x2, float y2, float x3, float y3) {
-
         // 1. Принадлежность точек полигона полю видимости
         boolean isVisiblePoint =  ((x1 >= x && x1 < x + width) && (y1 >= y && y1 < y + height) ||
                 (x2 >= x && x2 < x + width) && (y2 >= y && y2 < y + height) ||
                 (x3 >= x && x3 < x + width) && (y3 >= y && y3 < y + height)) ? true : false;
         if (!isVisiblePoint)  {
-
             // 2. Пересечение отрезков полигона с отрезками поля видимости
             float[] xx = {x1, x2, x3}, yy = {y1, y2, y3};
             for (int k = 0; k < 3; k++) {
@@ -119,7 +128,6 @@ public class Renderer {
                 }
             }
             if (!isVisiblePoint) {
-
                 // 3. Принадлежность точек поля видимости полигону
                 for (int i=0; i<4; i++) {
                     float check1 = (x1 - xo[i])*(y2 - y1) - (x2 - x1)*(y1 - yo[i]);
@@ -137,6 +145,7 @@ public class Renderer {
         return isVisiblePoint;
     }
 
+    // Возвращает true, если два заданных отрезка пересекаются
     private boolean intersection(float x1, float y1, float x2, float y2,
                                  float xx1, float yy1, float xx2, float yy2) {
         float v1, v2, v3, v4;
@@ -147,6 +156,7 @@ public class Renderer {
         return (v1 * v2 < 0) && (v3 * v4 < 0);
     }
 
+    // Отрисвка кадра
     private void draw(Canvas canvas, Polygon polygon) {
         if (polygon.getPosition().z > zHide) {
             float z_deform;
@@ -173,7 +183,6 @@ public class Renderer {
 
                 canvas.drawPath(path, paint);
 
-                // сокрытие диагональных прощелин
                 if (clearancePlaneShading) {
                     paint.setStrokeWidth(2);
                     canvas.drawLine(x1, y1, x3, y3, paint);
@@ -191,6 +200,7 @@ public class Renderer {
         }
     }
 
+    // Отрисовка сцены
     public void render(Canvas canvas) {
         zBuffering();
         canvas.drawRGB(clearColor.red, clearColor.green, clearColor.blue);

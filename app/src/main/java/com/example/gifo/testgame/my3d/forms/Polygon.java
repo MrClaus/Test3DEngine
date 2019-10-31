@@ -8,6 +8,9 @@ import java.util.ArrayList;
 
 /**
  * Created by gifo on 15.10.2019.
+ * Реализация объекта - Полигон как наследника класса Object3D
+ * Дополнительно реализует интерфейс Comparable для задания правила сравнения
+ * и адекватного порядка прорисовки Полигонов через Renderer
  */
 
 public class Polygon extends Object3D implements Comparable<Polygon> {
@@ -30,7 +33,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
     private Color color = new Color(255, 128, 128, 128);
 
     private boolean isOutlined = false, isOutlineSpecial = false;
-    private float outlineWeight = 1F;
+    private float outlineWeight = 1f;
     private Color outlineColor = new Color(255, 0, 0, 0);
 
     private Polygon original = this;
@@ -47,6 +50,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
         poly.add(this);
     }
 
+    // Авто-пересчёт координат позиции объекта
     private void calcPosition() {
         position = new Point3D((plots.get(0).x + plots.get(1).x + plots.get(2).x)/3,
                                (plots.get(0).y + plots.get(1).y + plots.get(2).y)/3,
@@ -132,7 +136,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
         rotationZ = oz;
         calcPosition();
     }
-
+    // Обнуление динамичных параметров Полигона
     private void restartValues() {
         rotationX = 0;
         rotationY = 0;
@@ -252,31 +256,20 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
         return outlineColor;
     }
 
+    // Специальная обводка контура для полигона по двум границам (кроме диагональной)
     public void outlineSpecial(boolean isOutlineSpecial) {
         this.isOutlineSpecial = isOutlineSpecial;
         this.isOutlined = isOutlineSpecial;
     }
 
+    // Возвращает true, если объект Полигон является выделенным контуром по двум границам (кроме диагональной)
     public boolean isOutlineSpecial() {
         return isOutlineSpecial;
     }
 
     @Override
     public void merge() {
-        original = new Polygon(this.mesh().get(0).x, this.mesh().get(0).y, this.mesh().get(0).z,
-                this.mesh().get(1).x, this.mesh().get(1).y, this.mesh().get(1).z,
-                this.mesh().get(2).x, this.mesh().get(2).y, this.mesh().get(2).z);
-        original.color(this.getAlpha(),
-                this.getColor().red,
-                this.getColor().green,
-                this.getColor().blue);
-        original.outline(this.isOutlined);
-        original.outlineSpecial(this.isOutlineSpecial);
-        original.outlineColor(this.getOutlineColor().alpha,
-                this.getOutlineColor().red,
-                this.getOutlineColor().green,
-                this.getOutlineColor().blue);
-        original.outlineWeight(this.getOutlineWeight());
+        original = (Polygon) copy();
         restartValues();
     }
 
@@ -296,7 +289,7 @@ public class Polygon extends Object3D implements Comparable<Polygon> {
                 this.getOutlineColor().green,
                 this.getOutlineColor().blue);
         copy.outlineWeight(this.getOutlineWeight());
-        copy.merge();
+        copy.restartValues();
         return copy;
     }
 }
